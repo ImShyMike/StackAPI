@@ -31,7 +31,7 @@ app.config["SWAGGER"] = {
             "model_filter": lambda tag: True,
         }
     ],
-    "specs_route": "/apidocs/"
+    "specs_route": "/apidocs/",
 }
 swagger = Swagger(app)
 
@@ -403,14 +403,14 @@ def destroy(stack_id: int):
 @app.route("/api/list", methods=["GET"])
 def list_stacks():
     """List all stacks
----
-produces: ["text/plain"]
-responses:
-  200:
-    description: List of stacks
-    schema:
-      type: string
-      example: "2/1000 stacks\\n\\nStack list:\\n0: 5/102400 (0%)\\n1: 10/102400 (0%)"
+    ---
+    produces: ["text/plain"]
+    responses:
+      200:
+        description: List of stacks
+        schema:
+          type: string
+          example: "2/1000 stacks\\n\\nStack list:\\n0: 5/102400 (0%)\\n1: 10/102400 (0%)"
     """
     stack_count = len(app.stacks)
     data = ""
@@ -432,8 +432,10 @@ def before_request():
 @app.after_request
 def set_plain_text(response):
     """Set the response content type to plain text for all requests (except for Swagger)"""
-    if not request.path.startswith("/apidocs") and not request.path.startswith(
-        "/flasgger_static"
+    if (
+        not request.path.startswith("/apidocs")
+        and not request.path.startswith("/flasgger_static")
+        and response.status_code not in (404, 405)
     ):
         response.headers["Content-Type"] = "text/plain"
     return response
